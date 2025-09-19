@@ -1,0 +1,215 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Dark Blue Car Marketplace Design System */
+
+@layer base {
+  :root {
+    /* Dark Blue Theme - Primary Colors */
+    --background: 210 40% 98%;
+    --foreground: 215 50% 12%;
+
+    --card: 210 30% 96%;
+    --card-foreground: 215 50% 12%;
+
+    --popover: 210 30% 96%;
+    --popover-foreground: 215 50% 12%;
+
+    --primary: 215 85% 25%;
+    --primary-foreground: 210 40% 98%;
+    --primary-light: 215 75% 35%;
+    --primary-dark: 215 95% 15%;
+
+    --secondary: 210 60% 92%;
+    --secondary-foreground: 215 50% 20%;
+
+    --muted: 210 40% 94%;
+    --muted-foreground: 215 25% 45%;
+
+    --accent: 220 70% 85%;
+    --accent-foreground: 215 50% 15%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 210 40% 98%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 210 40% 98%;
+
+    --border: 215 30% 85%;
+    --input: 215 30% 90%;
+    --ring: 215 85% 25%;
+
+    --radius: 0.75rem;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary-dark) / 0.9), hsl(var(--primary) / 0.7));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--accent) / 0.3));
+    --gradient-brand: linear-gradient(180deg, hsl(var(--primary) / 0.05), hsl(var(--primary) / 0.15));
+
+    /* Shadows */
+    --shadow-card: 0 4px 20px hsl(var(--primary) / 0.1);
+    --shadow-brand: 0 8px 30px hsl(var(--primary) / 0.2);
+    --shadow-hero: 0 20px 40px hsl(var(--primary-dark) / 0.3);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    --sidebar-background: 215 30% 95%;
+    --sidebar-foreground: 215 50% 15%;
+    --sidebar-primary: 215 85% 25%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 215 40% 88%;
+    --sidebar-accent-foreground: 215 50% 15%;
+    --sidebar-border: 215 30% 85%;
+    --sidebar-ring: 215 85% 25%;
+  }
+
+  .dark {
+    --background: 215 50% 8%;
+    --foreground: 210 40% 98%;
+
+    --card: 215 40% 12%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 215 40% 12%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 215 85% 65%;
+    --primary-foreground: 215 50% 8%;
+    --primary-light: 215 75% 75%;
+    --primary-dark: 215 95% 55%;
+
+    --secondary: 215 30% 20%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 215 30% 15%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 215 40% 25%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --success: 142 70% 45%;
+    --success-foreground: 210 40% 98%;
+
+    --warning: 38 85% 55%;
+    --warning-foreground: 215 50% 8%;
+
+    --border: 215 30% 25%;
+    --input: 215 30% 20%;
+    --ring: 215 85% 65%;
+
+    /* Dark gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary-dark) / 0.8), hsl(var(--primary) / 0.6));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--accent) / 0.5));
+    --gradient-brand: linear-gradient(180deg, hsl(var(--primary) / 0.1), hsl(var(--primary) / 0.2));
+
+    /* Dark shadows */
+    --shadow-card: 0 4px 20px hsl(var(--primary) / 0.2);
+    --shadow-brand: 0 8px 30px hsl(var(--primary) / 0.3);
+    --shadow-hero: 0 20px 40px hsl(var(--primary-dark) / 0.4);
+
+    --sidebar-background: 215 50% 5%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 215 85% 65%;
+    --sidebar-primary-foreground: 215 50% 8%;
+    --sidebar-accent: 215 40% 15%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 215 30% 18%;
+    --sidebar-ring: 215 85% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Hero Button Variants */
+  .btn-hero {
+    @apply bg-gradient-to-r from-primary to-primary-light text-primary-foreground px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary/50 backdrop-blur-sm text-secondary-foreground border border-border px-6 py-3 rounded-lg font-medium hover:bg-secondary transition-all duration-300;
+  }
+
+  /* Brand Card Effects */
+  .brand-card {
+    @apply bg-card/70 backdrop-blur-sm border border-border rounded-xl p-6 transition-all duration-500 hover:scale-105 hover:bg-gradient-to-br hover:from-card hover:to-accent/30;
+    box-shadow: 0 4px 20px hsl(var(--primary) / 0.1);
+  }
+
+  .brand-card:hover {
+    box-shadow: 0 8px 30px hsl(var(--primary) / 0.2);
+  }
+
+  /* Search and Filter Styles */
+  .search-input {
+    @apply bg-card/50 backdrop-blur-sm border border-border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300;
+  }
+
+  /* Animation Classes */
+  .fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+
+  .fade-in-left {
+    animation: fadeInLeft 0.8s ease-out forwards;
+  }
+
+  .stagger-delay-1 { animation-delay: 0.1s; }
+  .stagger-delay-2 { animation-delay: 0.2s; }
+  .stagger-delay-3 { animation-delay: 0.3s; }
+  .stagger-delay-4 { animation-delay: 0.4s; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
