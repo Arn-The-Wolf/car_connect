@@ -33,8 +33,8 @@ const BuyCars = () => {
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedMake, setSelectedMake] = useState<string>("");
-  const [selectedYear, setSelectedYear] = useState<string>("");
+  const [selectedMake, setSelectedMake] = useState<string>("all");
+  const [selectedYear, setSelectedYear] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("newest");
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -55,11 +55,11 @@ const BuyCars = () => {
         query = query.or(`title.ilike.%${searchTerm}%,make.ilike.%${searchTerm}%,model.ilike.%${searchTerm}%`);
       }
 
-      if (selectedMake) {
+      if (selectedMake && selectedMake !== "all") {
         query = query.eq("make", selectedMake);
       }
 
-      if (selectedYear) {
+      if (selectedYear && selectedYear !== "all") {
         query = query.eq("year", parseInt(selectedYear));
       }
 
@@ -169,13 +169,13 @@ const BuyCars = () => {
                   className="pl-10"
                 />
               </div>
-              
+
               <Select value={selectedMake} onValueChange={setSelectedMake}>
                 <SelectTrigger>
                   <SelectValue placeholder="All Makes" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Makes</SelectItem>
+                  <SelectItem value="all">All Makes</SelectItem>
                   {uniqueMakes.map(make => (
                     <SelectItem key={make} value={make}>{make}</SelectItem>
                   ))}
@@ -187,7 +187,7 @@ const BuyCars = () => {
                   <SelectValue placeholder="All Years" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Years</SelectItem>
+                  <SelectItem value="all">All Years</SelectItem>
                   {Array.from(new Set(cars.map(car => car.year)))
                     .sort((a, b) => b - a)
                     .map(year => (
@@ -257,13 +257,13 @@ const BuyCars = () => {
                         <Car className="h-12 w-12 text-muted-foreground" />
                       </div>
                     )}
-                    
+
                     {car.condition === "New" && (
                       <Badge className="absolute top-2 left-2 bg-green-500">
                         New
                       </Badge>
                     )}
-                    
+
                     {pricing.savings && (
                       <Badge className="absolute top-2 right-2 bg-red-500">
                         {pricing.percentage}% OFF
@@ -330,7 +330,7 @@ const BuyCars = () => {
                           </p>
                         )}
                       </div>
-                      <Button 
+                      <Button
                         size="sm"
                         onClick={() => navigate(`/car/${car.id}`)}
                       >
