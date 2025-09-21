@@ -42,7 +42,7 @@ const ExploreSection = () => {
         const data: Vehicle[] = await res.json();
         setVehicles(data);
       } else {
-        // Fallback to Supabase when Node API is not enabled
+        // Use mock Supabase client
         const { supabase } = await import('@/integrations/supabase/client');
         const { data, error } = await supabase
           .from('cars')
@@ -57,8 +57,8 @@ const ExploreSection = () => {
           subtitle: c.full_model || `${c.make} ${c.model}`,
           image: Array.isArray(c.images) && c.images[0]
             ? (c.images[0].startsWith('http')
-                ? c.images[0]
-                : supabase.storage.from('car-images').getPublicUrl(c.images[0]).data.publicUrl)
+              ? c.images[0]
+              : supabase.storage.from('car-images').getPublicUrl(c.images[0]).data.publicUrl)
             : '/placeholder.svg',
           price: c.discount ? c.price - c.discount : c.price,
           mileage: c.mileage || 0,
@@ -108,10 +108,10 @@ const ExploreSection = () => {
             View All
             <ArrowUpRight className="h-4 w-4" />
           </Button>
-          </div>
+        </div>
 
         <div className="flex space-x-8 mb-8">
-          {['in-stock','new-cars','used-cars'].map(tab => (
+          {['in-stock', 'new-cars', 'used-cars'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -128,8 +128,8 @@ const ExploreSection = () => {
         <div className={`flex gap-6 overflow-x-auto pb-4 transition-all duration-700 delay-200 ${inView ? 'animate-slide-up' : 'opacity-0'}`}>
           {vehicles.map((vehicle) => (
             <Card key={vehicle.id} className="flex-shrink-0 w-80 overflow-hidden group cursor-pointer">
-                <div className="relative">
-                  <img
+              <div className="relative">
+                <img
                   src={vehicle.image || '/placeholder.svg'}
                   alt={vehicle.name}
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
@@ -152,8 +152,8 @@ const ExploreSection = () => {
                     <Bookmark className="h-4 w-4" />
                   </Button>
                 </div>
-                </div>
-                
+              </div>
+
               <CardContent className="p-6">
                 <div className="space-y-4">
                   <div>

@@ -29,8 +29,8 @@ const BuyCars = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedMake, setSelectedMake] = useState<string>("");
-  const [selectedYear, setSelectedYear] = useState<string>("");
+  const [selectedMake, setSelectedMake] = useState<string>("all");
+  const [selectedYear, setSelectedYear] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("newest");
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -42,6 +42,7 @@ const BuyCars = () => {
   const fetchVehicles = async () => {
     try {
       setLoading(true);
+<<<<<<< HEAD
       const params = new URLSearchParams();
       if (searchTerm) params.append('search', searchTerm);
       if (selectedMake) params.append('make', selectedMake);
@@ -52,6 +53,46 @@ const BuyCars = () => {
       if (!res.ok) throw new Error('Failed to fetch vehicles');
       const data: Vehicle[] = await res.json();
       setVehicles(data);
+=======
+      let query = supabase
+        .from("cars")
+        .select("*")
+        .eq("status", "available");
+
+      if (searchTerm) {
+        query = query.or(`title.ilike.%${searchTerm}%,make.ilike.%${searchTerm}%,model.ilike.%${searchTerm}%`);
+      }
+
+      if (selectedMake && selectedMake !== "all") {
+        query = query.eq("make", selectedMake);
+      }
+
+      if (selectedYear && selectedYear !== "all") {
+        query = query.eq("year", parseInt(selectedYear));
+      }
+
+      switch (sortBy) {
+        case "price_low":
+          query = query.order("price", { ascending: true });
+          break;
+        case "price_high":
+          query = query.order("price", { ascending: false });
+          break;
+        case "year_new":
+          query = query.order("year", { ascending: false });
+          break;
+        case "mileage":
+          query = query.order("mileage", { ascending: true });
+          break;
+        default:
+          query = query.order("created_at", { ascending: false });
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      setCars(data || []);
+>>>>>>> 59c5c7a6917c69ac557c5cd3503533ed4deca2bd
     } catch (error) {
       console.error("Error fetching vehicles:", error);
       toast({
@@ -105,13 +146,13 @@ const BuyCars = () => {
                   className="pl-10"
                 />
               </div>
-              
+
               <Select value={selectedMake} onValueChange={setSelectedMake}>
                 <SelectTrigger>
                   <SelectValue placeholder="All Makes" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Makes</SelectItem>
+                  <SelectItem value="all">All Makes</SelectItem>
                   {uniqueMakes.map(make => (
                     <SelectItem key={make} value={make}>{make}</SelectItem>
                   ))}
@@ -123,7 +164,7 @@ const BuyCars = () => {
                   <SelectValue placeholder="All Years" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Years</SelectItem>
+                  <SelectItem value="all">All Years</SelectItem>
                   {Array.from(new Set(cars.map(car => car.year)))
                     .sort((a, b) => b - a)
                     .map(year => (
@@ -192,14 +233,24 @@ const BuyCars = () => {
                         <Car className="h-12 w-12 text-muted-foreground" />
                       </div>
                     )}
+<<<<<<< HEAD
                     
                     {vehicle.condition === "New" && (
+=======
+
+                    {car.condition === "New" && (
+>>>>>>> 59c5c7a6917c69ac557c5cd3503533ed4deca2bd
                       <Badge className="absolute top-2 left-2 bg-green-500">
                         New
                       </Badge>
                     )}
+<<<<<<< HEAD
                     
                     {vehicle.badge && (
+=======
+
+                    {pricing.savings && (
+>>>>>>> 59c5c7a6917c69ac557c5cd3503533ed4deca2bd
                       <Badge className="absolute top-2 right-2 bg-red-500">
                         {vehicle.badge}
                       </Badge>
@@ -254,7 +305,7 @@ const BuyCars = () => {
                           {formatPrice(vehicle.price)}
                         </p>
                       </div>
-                      <Button 
+                      <Button
                         size="sm"
                         onClick={() => navigate(`/car/${vehicle.id}`)}
                       >

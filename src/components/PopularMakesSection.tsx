@@ -51,6 +51,7 @@ const PopularMakesSection = () => {
         const data: Vehicle[] = await res.json();
         setVehicles(data);
       } else {
+        // Use mock Supabase client
         const { supabase } = await import('@/integrations/supabase/client');
         const { data, error } = await supabase
           .from('cars')
@@ -66,8 +67,8 @@ const PopularMakesSection = () => {
           subtitle: c.full_model || `${c.make} ${c.model}`,
           image: Array.isArray(c.images) && c.images[0]
             ? (c.images[0].startsWith('http')
-                ? c.images[0]
-                : supabase.storage.from('car-images').getPublicUrl(c.images[0]).data.publicUrl)
+              ? c.images[0]
+              : supabase.storage.from('car-images').getPublicUrl(c.images[0]).data.publicUrl)
             : '/placeholder.svg',
           price: c.discount ? c.price - c.discount : c.price,
           mileage: c.mileage || 0,
