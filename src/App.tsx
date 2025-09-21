@@ -25,6 +25,11 @@ import HowItWorks from "./pages/HowItWorks";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import CarDetails from "./pages/CarDetails";
+import AdminCars from "./pages/AdminCars";
+import AdminUsers from "./pages/AdminUsers";
+import AdminOrders from "./pages/AdminOrders";
+import EditCar from "./pages/EditCar";
+import TestDriveBooking from "./pages/TestDriveBooking";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +61,11 @@ const App = () => (
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/car/:id" element={<CarDetails />} />
+          <Route path="/admin/cars" element={<AdminCars />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/orders" element={<AdminOrders />} />
+          <Route path="/admin/edit-car/:id" element={<EditCar />} />
+          <Route path="/test-drive/:id" element={<TestDriveBooking />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

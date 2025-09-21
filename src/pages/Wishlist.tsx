@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+// Removed Supabase dependency - using Node API
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,42 +44,9 @@ const Wishlist = () => {
   const fetchWishlist = async () => {
     try {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        navigate("/signin");
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("wishlist")
-        .select(`
-          id,
-          car_id,
-          cars (
-            id,
-            title,
-            make,
-            model,
-            year,
-            price,
-            discount,
-            mileage,
-            mileage_unit,
-            fuel_type,
-            transmission,
-            seats,
-            location,
-            condition,
-            images,
-            color,
-            body_type
-          )
-        `)
-        .eq("user_id", user.id);
-
-      if (error) throw error;
-      setWishlistItems(data || []);
+      // TODO: Implement wishlist with Node API
+      // For now, show empty state
+      setWishlistItems([]);
     } catch (error) {
       console.error("Error fetching wishlist:", error);
       toast({
@@ -93,27 +60,11 @@ const Wishlist = () => {
   };
 
   const removeFromWishlist = async (wishlistId: string) => {
-    try {
-      const { error } = await supabase
-        .from("wishlist")
-        .delete()
-        .eq("id", wishlistId);
-
-      if (error) throw error;
-
-      setWishlistItems(prev => prev.filter(item => item.id !== wishlistId));
-      toast({
-        title: "Success",
-        description: "Car removed from wishlist!",
-      });
-    } catch (error) {
-      console.error("Error removing from wishlist:", error);
-      toast({
-        title: "Error",
-        description: "Failed to remove car from wishlist.",
-        variant: "destructive",
-      });
-    }
+    // TODO: Implement wishlist removal with Node API
+    toast({
+      title: "Feature Coming Soon",
+      description: "Wishlist functionality will be available soon.",
+    });
   };
 
   const formatPrice = (price: number, discount?: number) => {

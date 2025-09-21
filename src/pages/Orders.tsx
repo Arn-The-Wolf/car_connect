@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+// Removed Supabase dependency - using Node API
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,39 +41,9 @@ const Orders = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        navigate("/signin");
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("orders")
-        .select(`
-          id,
-          total_amount,
-          status,
-          payment_method,
-          notes,
-          created_at,
-          cars (
-            id,
-            title,
-            make,
-            model,
-            year,
-            price,
-            discount,
-            images,
-            location
-          )
-        `)
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setOrders(data || []);
+      // TODO: Implement orders with Node API
+      // For now, show empty state
+      setOrders([]);
     } catch (error) {
       console.error("Error fetching orders:", error);
       toast({

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,28 +8,25 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Heart, ArrowLeft, Car, Fuel, Settings, Users, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-interface Car {
+interface Vehicle {
   id: string;
-  title: string;
-  make: string;
-  model: string;
+  name: string;
   year: number;
+  subtitle: string;
+  image: string;
   price: number;
-  discount?: number;
   mileage: number;
-  mileage_unit: string;
-  fuel_type: string;
+  fuelType: string;
   transmission: string;
-  seats: number;
-  location: string;
-  condition: string;
-  images: string[];
-  color: string;
-  body_type: string;
+  badge?: string;
+  make?: string;
+  location?: string;
+  seats?: number;
+  condition?: string;
 }
 
 const BuyCars = () => {
-  const [cars, setCars] = useState<Car[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMake, setSelectedMake] = useState<string>("");
@@ -40,52 +36,24 @@ const BuyCars = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchCars();
+    fetchVehicles();
   }, []);
 
-  const fetchCars = async () => {
+  const fetchVehicles = async () => {
     try {
       setLoading(true);
-      let query = supabase
-        .from("cars")
-        .select("*")
-        .eq("status", "available");
-
-      if (searchTerm) {
-        query = query.or(`title.ilike.%${searchTerm}%,make.ilike.%${searchTerm}%,model.ilike.%${searchTerm}%`);
-      }
-
-      if (selectedMake) {
-        query = query.eq("make", selectedMake);
-      }
-
-      if (selectedYear) {
-        query = query.eq("year", parseInt(selectedYear));
-      }
-
-      switch (sortBy) {
-        case "price_low":
-          query = query.order("price", { ascending: true });
-          break;
-        case "price_high":
-          query = query.order("price", { ascending: false });
-          break;
-        case "year_new":
-          query = query.order("year", { ascending: false });
-          break;
-        case "mileage":
-          query = query.order("mileage", { ascending: true });
-          break;
-        default:
-          query = query.order("created_at", { ascending: false });
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-      setCars(data || []);
+      const params = new URLSearchParams();
+      if (searchTerm) params.append('search', searchTerm);
+      if (selectedMake) params.append('make', selectedMake);
+      if (selectedYear) params.append('year', selectedYear);
+      if (sortBy) params.append('sort', sortBy);
+      
+      const res = await fetch(`/api/vehicles?${params.toString()}`);
+      if (!res.ok) throw new Error('Failed to fetch vehicles');
+      const data: Vehicle[] = await res.json();
+      setVehicles(data);
     } catch (error) {
-      console.error("Error fetching cars:", error);
+      console.error("Error fetching vehicles:", error);
       toast({
         title: "Error",
         description: "Failed to fetch cars. Please try again.",
@@ -97,52 +65,20 @@ const BuyCars = () => {
   };
 
   useEffect(() => {
-    fetchCars();
+    fetchVehicles();
   }, [searchTerm, selectedMake, selectedYear, sortBy]);
 
-  const handleAddToWishlist = async (carId: string) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          title: "Authentication Required",
-          description: "Please sign in to add cars to your wishlist.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const { error } = await supabase
-        .from("wishlist")
-        .insert({ user_id: user.id, car_id: carId });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Car added to wishlist!",
-      });
-    } catch (error) {
-      console.error("Error adding to wishlist:", error);
-      toast({
-        title: "Error",
-        description: "Failed to add car to wishlist.",
-        variant: "destructive",
-      });
-    }
+  const handleAddToWishlist = async (vehicleId: string) => {
+    // TODO: Implement wishlist with Node API
+    toast({
+      title: "Feature Coming Soon",
+      description: "Wishlist functionality will be available soon.",
+    });
   };
 
-  const formatPrice = (price: number, discount?: number) => {
-    const discountedPrice = discount ? price - discount : price;
-    return {
-      original: price.toLocaleString(),
-      discounted: discountedPrice.toLocaleString(),
-      savings: discount ? discount.toLocaleString() : null,
-      percentage: discount ? Math.round((discount / price) * 100) : null
-    };
-  };
+  const formatPrice = (price: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(price);
 
-  const uniqueMakes = [...new Set(cars.map(car => car.make))];
+  const uniqueMakes = [...new Set(vehicles.map(v => v.make).filter(Boolean))];
 
   return (
     <div className="min-h-screen bg-background">
@@ -209,7 +145,7 @@ const BuyCars = () => {
                 </SelectContent>
               </Select>
 
-              <Button onClick={fetchCars} className="w-full">
+              <Button onClick={fetchVehicles} className="w-full">
                 Search
               </Button>
             </div>
@@ -219,7 +155,7 @@ const BuyCars = () => {
         {/* Results Count */}
         <div className="mb-6">
           <p className="text-sm text-muted-foreground">
-            Showing {cars.length} results
+            Showing {vehicles.length} results
           </p>
         </div>
 
@@ -241,15 +177,14 @@ const BuyCars = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {cars.map((car) => {
-              const pricing = formatPrice(car.price, car.discount);
+            {vehicles.map((vehicle) => {
               return (
-                <Card key={car.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
+                <Card key={vehicle.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
                   <div className="relative">
-                    {car.images && car.images.length > 0 ? (
+                    {vehicle.image ? (
                       <img
-                        src={car.images[0]}
-                        alt={car.title}
+                        src={vehicle.image}
+                        alt={vehicle.name}
                         className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
@@ -258,15 +193,15 @@ const BuyCars = () => {
                       </div>
                     )}
                     
-                    {car.condition === "New" && (
+                    {vehicle.condition === "New" && (
                       <Badge className="absolute top-2 left-2 bg-green-500">
                         New
                       </Badge>
                     )}
                     
-                    {pricing.savings && (
+                    {vehicle.badge && (
                       <Badge className="absolute top-2 right-2 bg-red-500">
-                        {pricing.percentage}% OFF
+                        {vehicle.badge}
                       </Badge>
                     )}
 
@@ -276,7 +211,7 @@ const BuyCars = () => {
                       className="absolute bottom-2 right-2 bg-white/80 hover:bg-white"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleAddToWishlist(car.id);
+                        handleAddToWishlist(vehicle.id);
                       }}
                     >
                       <Heart className="h-4 w-4" />
@@ -284,55 +219,44 @@ const BuyCars = () => {
                   </div>
 
                   <CardContent className="p-4">
-                    <h3 className="font-semibold text-lg mb-2">{car.title}</h3>
+                    <h3 className="font-semibold text-lg mb-2">{vehicle.name}</h3>
                     <p className="text-sm text-muted-foreground mb-3">
-                      {car.year} • {car.body_type}
+                      {vehicle.year} • {vehicle.subtitle}
                     </p>
 
                     <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
                       <div className="flex items-center gap-1">
                         <Car className="h-3 w-3" />
-                        <span>{car.mileage.toLocaleString()} {car.mileage_unit}</span>
+                        <span>{vehicle.mileage.toLocaleString()} Miles</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Fuel className="h-3 w-3" />
-                        <span>{car.fuel_type}</span>
+                        <span>{vehicle.fuelType}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Settings className="h-3 w-3" />
-                        <span>{car.transmission}</span>
+                        <span>{vehicle.transmission}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Users className="h-3 w-3" />
-                        <span>{car.seats} seats</span>
+                        <span>{vehicle.seats || 5} seats</span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 mb-3 text-xs">
                       <MapPin className="h-3 w-3" />
-                      <span>{car.location}</span>
+                      <span>{vehicle.location || 'Location not specified'}</span>
                     </div>
 
                     <div className="flex items-center justify-between">
                       <div>
-                        {pricing.savings ? (
-                          <div>
-                            <p className="text-lg font-bold text-primary">
-                              ${pricing.discounted}
-                            </p>
-                            <p className="text-sm text-muted-foreground line-through">
-                              ${pricing.original}
-                            </p>
-                          </div>
-                        ) : (
-                          <p className="text-lg font-bold text-primary">
-                            ${pricing.original}
-                          </p>
-                        )}
+                        <p className="text-lg font-bold text-primary">
+                          {formatPrice(vehicle.price)}
+                        </p>
                       </div>
                       <Button 
                         size="sm"
-                        onClick={() => navigate(`/car/${car.id}`)}
+                        onClick={() => navigate(`/car/${vehicle.id}`)}
                       >
                         View Details
                       </Button>
@@ -344,7 +268,7 @@ const BuyCars = () => {
           </div>
         )}
 
-        {!loading && cars.length === 0 && (
+        {!loading && vehicles.length === 0 && (
           <div className="text-center py-12">
             <Car className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">No Cars Found</h3>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+// Removed Supabase dependency - using Node API
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,39 +41,9 @@ const Bookings = () => {
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        navigate("/signin");
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("bookings")
-        .select(`
-          id,
-          booking_date,
-          booking_time,
-          status,
-          notes,
-          created_at,
-          cars (
-            id,
-            title,
-            make,
-            model,
-            year,
-            price,
-            images,
-            location,
-            seller_contact
-          )
-        `)
-        .eq("user_id", user.id)
-        .order("booking_date", { ascending: true });
-
-      if (error) throw error;
-      setBookings(data || []);
+      // TODO: Implement bookings with Node API
+      // For now, show empty state
+      setBookings([]);
     } catch (error) {
       console.error("Error fetching bookings:", error);
       toast({

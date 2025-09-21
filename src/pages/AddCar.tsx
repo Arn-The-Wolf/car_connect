@@ -9,7 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Car, Upload, Save, ArrowLeft } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+// Removed Supabase dependency - using Node API
 
 const AddCar = () => {
   const [formData, setFormData] = useState({
@@ -131,89 +131,39 @@ const AddCar = () => {
         return;
       }
 
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate('/signin');
-        return;
+      // Create vehicle record via Node API
+      const vehicleData = {
+        name: formData.title,
+        year: parseInt(formData.year),
+        subtitle: formData.full_model || `${formData.make} ${formData.model}`,
+        image: '', // Will be updated after file upload
+        price: parseFloat(formData.price),
+        mileage: parseInt(formData.mileage) || 0,
+        fuelType: formData.fuel_type,
+        transmission: formData.transmission,
+        badge: formData.discount ? 'Sale' : formData.condition === 'New' ? 'New' : '',
+        make: formData.make,
+        location: formData.location,
+        seats: parseInt(formData.seats),
+        condition: formData.condition,
+      };
+
+      const res = await fetch('/api/vehicles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(vehicleData)
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to create vehicle');
       }
 
-      let createdId: string | null = null;
-      if (import.meta.env.VITE_API_MODE === 'node') {
-        const res = await fetch('/api/vehicles', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: formData.title,
-            year: parseInt(formData.year),
-            subtitle: formData.full_model,
-            image: '',
-            price: parseFloat(formData.price),
-            mileage: parseInt(formData.mileage) || 0,
-            fuelType: formData.fuel_type,
-            transmission: formData.transmission,
-            badge: undefined,
-            make: formData.make,
-          })
-        });
-        if (!res.ok) throw new Error('Failed to create vehicle');
-        const created = await res.json();
-        createdId = created.id;
-      } else {
-        // Create car record in Supabase
-        const { data: car, error: carError } = await supabase
-          .from('cars')
-          .insert({
-            title: formData.title,
-            make: formData.make,
-            model: formData.model,
-            full_model: formData.full_model || null,
-            year: parseInt(formData.year),
-            manufacture_date: formData.manufacture_date || null,
-            color: formData.color,
-            mileage: parseInt(formData.mileage) || 0,
-            mileage_unit: formData.mileage_unit,
-            body_type: formData.body_type,
-            fuel_type: formData.fuel_type,
-            transmission: formData.transmission,
-            seats: parseInt(formData.seats),
-            vin: formData.vin || null,
-            registration_number: formData.registration_number || null,
-            condition: formData.condition,
-            location: formData.location,
-            description: formData.description || null,
-            price: parseFloat(formData.price),
-            discount: formData.discount ? parseFloat(formData.discount) : 0,
-            negotiable: formData.negotiable,
-            service_history: formData.service_history || null,
-            last_service_date: formData.last_service_date || null,
-            seller_contact: formData.seller_contact || null,
-            created_by: session.user.id
-          })
-          .select()
-          .single();
+      const created = await res.json();
+      const createdId = created._id;
 
-        if (carError) {
-          throw carError;
-        }
-        createdId = car.id;
-      }
-
-      // Upload files and update car record with URLs
-      if (!import.meta.env.VITE_API_MODE && (images.length > 0 || video)) {
-        const { imageUrls, videoUrl } = await uploadFiles(car.id);
-        
-        const { error: updateError } = await supabase
-          .from('cars')
-          .update({
-            images: imageUrls,
-            video_url: videoUrl || null
-          })
-          .eq('id', car.id);
-
-        if (updateError) {
-          throw updateError;
-        }
-      }
+      // TODO: Implement file upload for Node API
+      // For now, file upload is disabled
 
       toast({
         title: "Success!",
