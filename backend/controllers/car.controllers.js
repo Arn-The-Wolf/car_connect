@@ -24,7 +24,7 @@ export const createCar = async (req, res) => {
 
 export const getCars = async (req, res) => {
   try {
-    const { page = 1, limit = 20, q, status, sellEnabled, rentEnabled } = req.query
+    const { page = 1, limit = 20, q, status, sellEnabled, rentEnabled, condition } = req.query
     const filter = {}
     if (q) {
       filter.$or = [
@@ -41,6 +41,9 @@ export const getCars = async (req, res) => {
     }
     if (typeof rentEnabled !== 'undefined') {
       filter.rentEnabled = rentEnabled === 'true'
+    }
+    if (condition) {
+      filter.condition = condition
     }
     const cars = await Car.find(filter)
       .sort({ createdAt: -1 })

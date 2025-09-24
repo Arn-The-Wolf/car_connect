@@ -5,6 +5,8 @@ const carSchema = new mongoose.Schema({
   model: { type: String, required: true, trim: true },
   year: { type: Number, required: true },
   price: { type: Number, required: true }, // sale price
+  // condition
+  condition: { type: String, enum: ['New', 'Used'], default: 'Used' },
   // listing modes
   sellEnabled: { type: Boolean, default: true },
   rentEnabled: { type: Boolean, default: false },
